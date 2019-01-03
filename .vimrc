@@ -4,24 +4,12 @@ set nocompatible
 filetype off
 set rtp+=~/.vim/bundle/vundle/
 call vundle#rc()
-
 Plugin 'gmarik/vundle'
-Plugin 'Buffergator'
-Plugin 'joonty/vdebug'
-Plugin 'altercation/vim-colors-solarized'
-Plugin 'scrooloose/nerdtree'
-Plugin 'tpope/vim-fugitive'
-Plugin 'vim-syntastic/syntastic'
-Plugin 'pangloss/vim-javascript'
-Plugin 'mkitt/tabline.vim'
-Plugin 'jistr/vim-nerdtree-tabs'
-Plugin 'majutsushi/tagbar'
-
 filetype plugin indent on
 
 
-"COPY/PASTE
-"----------
+"COPY/PASTE:
+"-----------
 "Increases the memory limit from 50 lines to 1000 lines
 :set viminfo='100,<1000,s10,h
 
@@ -38,7 +26,7 @@ autocmd! bufwritepost .vimrc source %
 
 
 "MOUSE:
-"----------
+"------
 "Allow using mouse helpful for switching/resizing windows
 set mouse+=a
 if &term =~ '^screen'
@@ -46,12 +34,18 @@ if &term =~ '^screen'
   set ttymouse=xterm2
 endif
 
+
 "HIGHLIGHTING:
 "-------------
 " <Ctrl-l> redraws the screen and removes any search highlighting.
 nnoremap <silent> <C-l> :nohl<CR><C-l>
 " Highlight the current line the cursor is on
 set cursorline
+
+
+"STATUS BAR:
+"-----------
+Plugin 'vim-airline/vim-airline'
 
 
 "SPACING:
@@ -66,39 +60,63 @@ set expandtab
 
 "SHORTCUTS:
 "----------
-"Switch between 'set paste' and 'set nopaste' by keying 'zxc'
-set pastetoggle=zxc
 "Open file at same line last closed
 if has("autocmd")
   au BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$")
   \| exe "normal! g'\"" | endif
 endif
+
+
+"FUNCTION BROWSER (TAGBAR):
+"--------------------------
+Plugin 'majutsushi/tagbar'
 "List of functions in the current file using Tagbar plugin
 map tb :TagbarToggle<CR>
 "Make the cursor go to Tagbar window when it opens
 let g:tagbar_autofocus = 1
 
 
-"SEARCH:
-"-------
+"COPY/PASTE:
+"-----------
+"Switch between 'set paste' and 'set nopaste' by keying 'zxc'
+set pastetoggle=zxc
+
+
+"NEW LINE:
+"---------
+"Show newline characters as $ (dollar sign)
+map nl :set list!<CR>
+
+
+"FILE SEARCH:
+"------------
+Plugin 'kien/ctrlp.vim'
+"Control P file search
+set runtimepath^=~/.vim/bundle/ctrlp.vim
+"Remove limit on how many files Control P can search (https://github.com/kien/ctrlp.vim/issues/234#issuecomment-19874334)
+let g:ctrlp_max_files=0
+"For large projects (https://github.com/kien/ctrlp.vim/issues/234#issuecomment-22992830)
+let g:ctrlp_max_depth=40
+
+
+"TEXT SEARCH:
+"------------
 "Makes Search Case Insensitive
 set hlsearch
 set ignorecase
 set smartcase
-"Control P file search
-set runtimepath^=~/.vim/bundle/ctrlp.vim
 
 
 "WHITESPACE:
 "-----------
-"Highlights extra whitespace at the end of a file in red
-"Must be inserted before the color scheme
+"Highlights extra whitespace at the end of a file (insert before color scheme)
 autocmd ColorScheme * highlight ExtraWhitespace ctermbg=gray guibg=gray
 au InsertLeave * match ExtraWhitespace /\s\+$/
 
 
 "COLOR SCHEME:
 "-------------
+Plugin 'altercation/vim-colors-solarized'
 let g:solarized_termcolors=256
 colorscheme solarized
 set background=dark
@@ -106,32 +124,43 @@ set background=dark
 
 "FILE BROWSER (NERDTREE):
 "------------------------
-"makes NERDTree close automatically if it's the last thing open
-autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTreeType") && b:NERDTreeType == "primary") | q | endif
+"A better file browser
+Plugin 'scrooloose/nerdtree'
+"Makes NERDTree behave consistently across tabs
+Plugin 'jistr/vim-nerdtree-tabs'
+"Nicer formatting for tabs
+Plugin 'mkitt/tabline.vim'
 "allows NERDTree to open/close by typing 'n' then 't'
 map nt :NERDTreeTabsToggle<CR>
 "Start NERDtree when dir is selected (e.g. "vim .") and start NERDTreeTabs
-au VimEnter NERD_tree_1 enew | execute 'NERDTree '.argv()[0] | let g:nerdtree_tabs_open_on_console_startup=1
+let g:nerdtree_tabs_open_on_console_startup=2
 "Add a close button in the upper right for tabs
 let g:tablineclosebutton=1
+"Automatically find and select currently opened file in NERDTree
+let g:nerdtree_tabs_autofind=1
 
 
 "INDENTATION:
 "------------
-"Easier moving of code blocks (keeps code highlighted for multiple indents
-"without having to reselect)
+"Highlights code for multiple indents without reselecting
 vnoremap < <gv
 vnoremap > >gv
 
 
-"PHP:
-"----
-"Auto Completion (OmniCompletion)
-autocmd FileType php set omnifunc=phpcomplete#CompletePHP
+"CODE COMPLETION:
+"----------------
+"Automatically finish quotes, brackets, parentheses, etc.
+Plugin 'jiangmiao/auto-pairs'
+"Automatically close HTML elements.
+Plugin 'alvan/vim-closetag'
+"Popup suggestions for things like PHP methods.
+Plugin 'ajh17/VimCompletesMe'
+"Removes VimCompletesMe preview window that pops up
+set completeopt-=preview
 
 
-"DRUPAL:
-"-------
+"SYNTAX HIGHLIGHTING:
+"--------------------
 "Makes vim recognize Drupal files as PHP syntax
 if has("autocmd")
   " Drupal *.module and *.install files.
@@ -142,23 +171,49 @@ if has("autocmd")
     autocmd BufRead,BufNewFile *.inc set filetype=php
     autocmd BufRead,BufNewFile *.profile set filetype=php
     autocmd BufRead,BufNewFile *.view set filetype=php
+    autocmd BufRead,BufNewFile *.theme set filetype=php
+    autocmd BufRead,BufNewFile *.lock set filetype=json
   augroup END
 endif
 syntax on
-"IMPORTANT: You need to manually create a ctags file
-"in order to jump to classes, methods, functions, etc.
-"For help, see https://youtu.be/DPv_6zU0ZoQ
-"TODO: Create ctags automatically
-":set tags=~/.vim/tags/drupal
+
+
+"JUMP TO DEFINITION:
+"-------------------
+"Gutentags creates ctags automatically
+Plugin 'ludovicchabant/vim-gutentags'
+"Do not create tags for the following file types
+let g:gutentags_ctags_exclude = [
+ \ '*.css',
+ \ '*.html',
+ \ '*.js',
+ \ '*.json',
+ \ '*.xml',
+ \ '*.phar',
+ \ '*.ini',
+ \ '*.rst',
+ \ '*.md',
+ \ '*vendor/*/test*',
+ \ '*vendor/*/Test*',
+ \ '*vendor/*/fixture*',
+ \ '*vendor/*/Fixture*',
+ \ '*var/cache*',
+ \ '*var/log*'
+ \ ]
 
 
 "DEBUGGING:
 "----------
+Plugin 'joonty/vdebug'
 let g:vdebug_features = { 'max_children': 256 }
+let g:vdebug_options={}
+let g:vdebug_options['break_on_open'] = 0
+let g:vdebug_options["path_maps"] = {'/app': getcwd()}
 
 
 "GIT (FUGITIVE):
 "---------------
+Plugin 'tpope/vim-fugitive'
 map fgb :Gblame<CR>
 map fgs :Gstatus<CR>
 map fgl :Glog<CR>
@@ -169,6 +224,7 @@ map fga :Git add %:p<CR>
 
 "CODE SNIFFER:
 "-------------
+Plugin 'vim-syntastic/syntastic'
 let g:syntastic_php_phpcs_args="--standard=Drupal --extensions=php,module,inc,install,test,profile,theme"
 if has('statusline')
   set laststatus=2
