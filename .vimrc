@@ -153,8 +153,12 @@ vnoremap > >gv
 Plugin 'jiangmiao/auto-pairs'
 "Automatically close HTML elements
 Plugin 'alvan/vim-closetag'
+"Close tags for twig and php templates
+let g:closetag_filetypes = 'html, twig, php'
 "Popup autocompletion suggestions
 Plugin 'Valloric/YouCompleteMe'
+"Removes preview window that pops up
+set completeopt-=preview
 "Pull tags into YCM
 let g:ycm_collect_identifiers_from_tags_files = 1
 
@@ -218,6 +222,7 @@ if has("autocmd")
     autocmd BufRead,BufNewFile *.view set filetype=php
     autocmd BufRead,BufNewFile *.theme set filetype=php
     autocmd BufRead,BufNewFile *.lock set filetype=json
+    autocmd BufRead,BufNewFile *.twig set filetype=html
   augroup END
 endif
 syntax on
