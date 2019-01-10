@@ -93,7 +93,7 @@ map nl :set list!<CR>
 Plugin 'kien/ctrlp.vim'
 "Control P file search
 set runtimepath^=~/.vim/bundle/ctrlp.vim
-"Remove limit on how many files Control P can search (https://github.com/kien/ctrlp.vim/issues/234#issuecomment-19874334)
+"Remove limit on how many files Control P can search
 let g:ctrlp_max_files=0
 "For large projects (https://github.com/kien/ctrlp.vim/issues/234#issuecomment-22992830)
 let g:ctrlp_max_depth=40
@@ -149,33 +149,33 @@ vnoremap > >gv
 
 "CODE COMPLETION:
 "----------------
-"Automatically finish quotes, brackets, parentheses, etc.
+"Automatically finish quotes, brackets, parentheses, etc
 Plugin 'jiangmiao/auto-pairs'
-"Automatically close HTML elements.
+"Automatically close HTML elements
 Plugin 'alvan/vim-closetag'
-"Popup suggestions for things like PHP methods.
-Plugin 'ajh17/VimCompletesMe'
-"Removes VimCompletesMe preview window that pops up
-set completeopt-=preview
+"Popup autocompletion suggestions
+Plugin 'Valloric/YouCompleteMe'
+"Pull tags into YCM
+let g:ycm_collect_identifiers_from_tags_files = 1
 
 
-"SYNTAX HIGHLIGHTING:
-"--------------------
-"Makes vim recognize Drupal files as PHP syntax
-if has("autocmd")
-  " Drupal *.module and *.install files.
-  augroup module
-    autocmd BufRead,BufNewFile *.module set filetype=php
-    autocmd BufRead,BufNewFile *.install set filetype=php
-    autocmd BufRead,BufNewFile *.test set filetype=php
-    autocmd BufRead,BufNewFile *.inc set filetype=php
-    autocmd BufRead,BufNewFile *.profile set filetype=php
-    autocmd BufRead,BufNewFile *.view set filetype=php
-    autocmd BufRead,BufNewFile *.theme set filetype=php
-    autocmd BufRead,BufNewFile *.lock set filetype=json
-  augroup END
-endif
-syntax on
+"CODE SNIPPETS:
+"--------------
+Plugin 'SirVer/ultisnips'
+Plugin 'jimafisk/vim-snippets'
+"Recognize Drupal 8 snippets
+autocmd FileType php UltiSnipsAddFiletypes php-drupal8
+"Allow pressing enter for Ultisnips when using YCM autocomplete
+let g:ulti_expand_or_jump_res = 0
+function! ExpandSnippetOrCarriageReturn()
+  let snippet = UltiSnips#ExpandSnippetOrJump()
+  if g:ulti_expand_or_jump_res > 0
+    return snippet
+  else
+    return "\<CR>"
+  endif
+endfunction
+inoremap <expr> <CR> pumvisible() ? "<C-R>=ExpandSnippetOrCarriageReturn()<CR>" : "\<CR>"
 
 
 "JUMP TO DEFINITION:
@@ -200,6 +200,27 @@ let g:gutentags_ctags_exclude = [
  \ '*var/cache*',
  \ '*var/log*'
  \ ]
+"Make Gutentags work with YCM
+let g:gutentags_ctags_extra_args = ['--fields=+l']
+
+
+"SYNTAX HIGHLIGHTING:
+"--------------------
+"Makes vim recognize Drupal files as PHP syntax
+if has("autocmd")
+  " Drupal *.module and *.install files.
+  augroup module
+    autocmd BufRead,BufNewFile *.module set filetype=php
+    autocmd BufRead,BufNewFile *.install set filetype=php
+    autocmd BufRead,BufNewFile *.test set filetype=php
+    autocmd BufRead,BufNewFile *.inc set filetype=php
+    autocmd BufRead,BufNewFile *.profile set filetype=php
+    autocmd BufRead,BufNewFile *.view set filetype=php
+    autocmd BufRead,BufNewFile *.theme set filetype=php
+    autocmd BufRead,BufNewFile *.lock set filetype=json
+  augroup END
+endif
+syntax on
 
 
 "DEBUGGING:
